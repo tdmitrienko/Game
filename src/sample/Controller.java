@@ -2,7 +2,11 @@ package sample;
 
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.fxml.Initializable;
+import javafx.scene.Cursor;
+import javafx.scene.ImageCursor;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
@@ -22,8 +26,9 @@ public class Controller implements Initializable {
     public RadioButton hard = new RadioButton();
     public Label io;
     public Button start;
-    public Controller controller = this;
     public Active active;
+    public EventHandler<ActionEvent> gameOverAction;
+    public Button vixod;
 
     ToggleGroup group = new ToggleGroup();
     Image gameOver;
@@ -36,23 +41,26 @@ public class Controller implements Initializable {
         easy.setSelected(true);
         medium.setToggleGroup(group);
         hard.setToggleGroup(group);
-
-    }
-
-    public void gameOver() {
-        gameOver = new Image("/image/gameOver.png", 600, 500, false, false);
-        gameO = new ImageView(gameOver);
-        start.setVisible(true);
-        easy.setVisible(true);
-        medium.setVisible(true);
-        hard.setVisible(true);
-        canvas1.getChildren().remove(gameO);
-        canvas1.getChildren().add(gameO);
+        vixod.setVisible(false);
+        gameOverAction = new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                gameOver = new Image("/image/gameOver.png", 700, 500, false, false);
+                gameO = new ImageView(gameOver);
+                start.setVisible(true);
+                easy.setVisible(true);
+                medium.setVisible(true);
+                hard.setVisible(true);
+                canvas1.getChildren().remove(gameO);
+                canvas1.getChildren().add(gameO);
+            }
+        };
     }
 
     public void startuem(ActionEvent event) {
+        vixod.setVisible(true);
         canvas1.getChildren().remove(gameO);
-
+        canvas1.setCursor(new ImageCursor(new Image("/image/tapok.png",1500,1500,false,false)));
         io.setVisible(false);
         easy.setVisible(false);
         medium.setVisible(false);
@@ -60,13 +68,22 @@ public class Controller implements Initializable {
         start.setVisible(false);
 
         if (easy.isSelected()) {
-            active = new GamePainEasy(canvas1, controller);
+            active = new GamePainEasy(canvas1, gameOverAction);
         }
         else if (medium.isSelected()) {
-            active = new GamePainMedium(canvas1, controller);
+            active = new GamePainMedium(canvas1, gameOverAction);
         }
         else {
-            active = new GamePainHard(canvas1, controller);
+            active = new GamePainHard(canvas1, gameOverAction);
         }
+    }
+
+    public void exitPlay(ActionEvent event) {
+        vixod.setVisible(false);
+        active.exitGame();
+        start.setVisible(true);
+        easy.setVisible(true);
+        medium.setVisible(true);
+        hard.setVisible(true);
     }
 }

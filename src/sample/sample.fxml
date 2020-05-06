@@ -12,6 +12,7 @@
       <Pane fx:id="canvas1" prefHeight="400.0" prefWidth="600.0">
          <children>
             <Label fx:id="ochki" layoutX="14.0" layoutY="4.0" />
+            <Button fx:id="vixod" layoutY="369.0" mnemonicParsing="false" onAction="#exitPlay" text="Выход" />
          </children></Pane>
       <Button fx:id="start" layoutX="241.0" layoutY="253.0" mnemonicParsing="false" onAction="#startuem" prefHeight="51.0" prefWidth="124.0" text="играть">
          <font>

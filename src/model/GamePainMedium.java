@@ -6,9 +6,12 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.util.Duration;
 import sample.Controller;
 
@@ -17,27 +20,34 @@ import java.util.*;
 
 public class GamePainMedium implements Active {
     private Pane canvas;
-    private Controller controller;
     private PathTransition pathTransition = new PathTransition();
     private Path path;
     private Timer timer;
     private TimerTask timerTask;
-
+    private EventHandler<ActionEvent> gameOver;
     private ArrayList<Tarakan> list=new ArrayList<>();
     ImageView t;
+    private int ochki=0;
+    private Text text = new Text("");
 
 
     public ImageView getT() {
         return t;
     }
 
-    public void stopPathT(){
-        pathTransition.stop();
+    @Override
+    public void exitGame() {
+        timer.cancel();
+        for (Tarakan tarakan:list) {
+            canvas.getChildren().remove(tarakan);
+            tarakan.stopPathTransition();
+        }
+        canvas.getChildren().remove(text);
     }
 
-    public GamePainMedium(Pane canvas, Controller controller) {
+    public GamePainMedium(Pane canvas, EventHandler<ActionEvent> gameOver) {
         this.canvas = canvas;
-        this.controller = controller;
+        this.gameOver = gameOver;
         timer=new Timer();
         timerTask= new TimerTask() {
             @Override
@@ -45,7 +55,15 @@ public class GamePainMedium implements Active {
                 Platform.runLater(new Runnable() {
                     @Override
                     public void run() {
-                        Tarakan tarakan = new Tarakan(canvas);
+                        Tarakan tarakan = new Tarakan(canvas, new EventHandler<ActionEvent>() {
+                            @Override
+                            public void handle(ActionEvent event) {
+                                ochki+=1;
+                                canvas.getChildren().remove(text);
+                                text.setText("" + ochki);
+                                canvas.getChildren().add(text);
+                            }
+                        });
                         list.add(tarakan);
                         pathTransition(tarakan);
                     }
@@ -53,6 +71,10 @@ public class GamePainMedium implements Active {
             }
         };
         timer.schedule(timerTask, 0, 2000);
+        text.setX(50);
+        text.setY(50);
+        text.setFont(new Font(50));
+        text.setFill(Color.RED);
     }
 
 
@@ -61,7 +83,8 @@ public class GamePainMedium implements Active {
             @Override
             public void handle(ActionEvent event) {
                 timer.cancel();
-                controller.gameOver();
+                gameOver.handle(event);
+                canvas.getChildren().remove(text);
                 for (Tarakan t : list) {
                     t.stopPathTransition();
                     canvas.getChildren().remove(t);
@@ -87,4 +110,6 @@ public class GamePainMedium implements Active {
 
         tarakan.tarakanOnClick(pathTransition);
     }
+
+
 }
